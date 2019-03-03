@@ -15,7 +15,7 @@ class Heuristic:
                  distance_threshold=None):
         self.player_type = player_type
         self.coef_humans = 100
-        self.coef_enemy = 10
+        self.coef_enemy = 1
         self.distance_threshold = max(board.rows, board.columns) // 2 if not distance_threshold else distance_threshold
         self.distance_lambda = distance_lambda
         self.enemy_lambda = enemy_lambda
@@ -36,8 +36,6 @@ class Heuristic:
             for human_pos, human_num in human_locations.items():
                 if self.euclidian(player_pos, human_pos) < self.distance_threshold:
                     result += self.heuristic_human(player_pos, human_pos, player_num, human_num)
-        # board.print_pretty()
-        # print("Result", result)
         return result
 
     def heuristic_enemy(self, start, end, player_num, enemy_num):

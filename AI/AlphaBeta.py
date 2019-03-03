@@ -51,6 +51,7 @@ class Alphabeta:
             boardcopy = deepcopy(board)
             boardcopy.play(action, self.player)
             v = minvalue(boardcopy, meilleur_score, beta, 1)
+            print("Val", action, v)
             if v > meilleur_score:
                 meilleur_score = v
                 coup = action

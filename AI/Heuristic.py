@@ -28,7 +28,7 @@ class Heuristic:
         if self.player_type == WAREWOLVES:
             player_locations = board.warewolves
             enemy_locations = board.vampires
-        # print("Calculating heur")
+        # Au lieu de tout sommer on peut prendre le score max par point
         for player_pos, player_num in player_locations.items():
             for enemy_pos, enemy_num in enemy_locations.items():
                 if self.euclidian(player_pos, enemy_pos) < self.distance_threshold:

@@ -6,7 +6,7 @@ from Settings import VAMPIRES, WAREWOLVES
 
 
 class Alphabeta:
-    def __init__(self, board, player=VAMPIRES, profondeur_max=4):
+    def __init__(self, board, player=VAMPIRES, profondeur_max=20):
         self.board = board
         self.player = player
         self.enemy = VAMPIRES if (player != VAMPIRES) else WAREWOLVES

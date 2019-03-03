@@ -13,11 +13,6 @@ class Board:
         self.humans = {}
         self.reinit_numb()
 
-    def display(self):
-        print("Vampires", self.vampires)
-        print("Warewolves", self.warewolves)
-        print("Humans", self.humans)
-
     def reinit_numb(self):
         self.nbr_vampires = 0
         self.nbr_warewolves = 0
@@ -96,15 +91,15 @@ class Board:
     def still_in_grid(self, x, y):
         return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
 
-    def transform_in_matrix(self):
-        M = [["_" for row in self.rows] for col in self.columns]
-        for position, nombre in self.vampires.items():
-            M[position] = str(nombre) + " V"
+    def print_pretty(self):
+        M = [["_" for row in range(self.rows)] for col in range(self.columns)]
+        for (x, y), nombre in self.vampires.items():
+            M[x][y] = str(nombre) + "V"
 
-        for position, nombre in self.humans.items():
-            M[position] += str(nombre) + " H"
+        for (x, y), nombre in self.humans.items():
+            M[x][y] = str(nombre) + "H"
 
-        for position, nombre in self.warewolves.items():
-            M[position] += str(nombre) + " W"
+        for (x, y), nombre in self.warewolves.items():
+            M[x][y] = str(nombre) + "W"
 
         print(np.matrix(M))

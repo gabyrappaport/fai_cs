@@ -12,7 +12,7 @@ class Heuristic:
     def __init__(self, board, player_type=VAMPIRES, distance_lambda=linear, enemy_lambda=linear,
                  distance_threshold=None):
         self.player_type = player_type
-        self.coef_humans = 10
+        self.coef_humans = 100
         self.coef_enemy = 10
         self.distance_threshold = max(board.rows, board.columns) // 2 if not distance_threshold else distance_threshold
         self.distance_lambda = distance_lambda
@@ -39,7 +39,7 @@ class Heuristic:
         return self.coef_enemy * self.distance(start, end) * self.player_left(player_num, enemy_num, rapport_de_force_coef=1.5)
 
     def heuristic_human(self, start, end, player_num, enemy_num):
-        return self.coef_enemy * self.distance(start, end) * self.player_left(player_num, enemy_num)
+        return self.coef_humans * self.distance(start, end) * self.player_left(player_num, enemy_num)
 
     def euclidian(self, start, end):
         (start_x, start_y) = start

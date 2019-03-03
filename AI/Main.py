@@ -1,11 +1,10 @@
-from Board import Board
+from TestBoard import TestBoard
 from Settings import VAMPIRES, WAREWOLVES
 from AlphaBeta import Alphabeta
 
 if __name__ == "__main__":
 
-    board = Board(5, 5)
-    board.display()
+    board = TestBoard(5, 5)
     game_map = [
     	(0, 0, 0, 4, 0),
     	(0, 1, 1, 0, 0),
@@ -15,7 +14,7 @@ if __name__ == "__main__":
     	(1, 4, 0, 0, 3)
     ]
     board.update_board(game_map)
-    board.display()
+    board.print_pretty()
 
     alpha_vampire = Alphabeta(board, player=VAMPIRES)
     alpha_warewold = Alphabeta(board, player=WAREWOLVES)
@@ -27,9 +26,11 @@ if __name__ == "__main__":
     	alpha_vampire.board = board
     	move = alpha_vampire.alphabeta()
     	print("Move vampire", move)
-    	board.play(move, VAMPIRES)
+    	board.play_with_battle(move, VAMPIRES)
+    	board.print_pretty()
 
     	alpha_warewold.board = board
     	move_w = alpha_warewold.alphabeta()
     	print("Move warewolf", move_w)
-    	board.play(move_w, WAREWOLVES)
+    	board.play_with_battle(move_w, WAREWOLVES)
+    	board.print_pretty()

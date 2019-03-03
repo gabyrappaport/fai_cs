@@ -1,11 +1,12 @@
-from Settings import HUMANS, VAMPIRES, WAREWOLVES
+from AI.Settings import WAREWOLVES
+
 
 class Board:
 
     def __init__(self, rows, columns):
         self.rows = rows
         self.columns = columns
-        self.vampires = {} # key = (x,y) ; value = number of vampires
+        self.vampires = {}  # key = (x,y) ; value = number of vampires
         self.warewolves = {}
         self.humans = {}
         self.reinit_numb()
@@ -24,13 +25,13 @@ class Board:
         self.reinit_numb()
         for (x, y, humans, vampires, warewolves) in game_map:
             if humans > 0:
-                self.humans[(x,y)] = humans
+                self.humans[(x, y)] = humans
                 self.nbr_humans += humans
             if vampires > 0:
-                self.vampires[(x,y)] = vampires
+                self.vampires[(x, y)] = vampires
                 self.nbr_vampires += vampires
             if warewolves > 0:
-                self.warewolves[(x,y)] = warewolves
+                self.warewolves[(x, y)] = warewolves
                 self.nbr_warewolves += warewolves
 
     def play(self, action, player_type):
@@ -44,32 +45,31 @@ class Board:
 
     # todo: be smart about the actions order, une case peut pas etre depart et arrivee
     def get_possible_actions(self, player_type):
-        actions = [] # [(depart = (x,y), arrivee=(x,y), nombre de personnes deplacees)
+        actions = []  # [(depart = (x,y), arrivee=(x,y), nombre de personnes deplacees)
         player = self.vampires
         if player_type == WAREWOLVES:
             player = self.warewolves
         for (player_x, player_y), val in player.items():
             # x-1 still
-            if self.still_in_grid(player_x-1, player_y):
-                actions += [((player_x, player_y), (player_x-1, player_y), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x-1, player_y+1):
-                actions += [((player_x, player_y), (player_x-1, player_y+1), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x-1, player_y-1):
-                actions += [((player_x, player_y), (player_x-1, player_y-1), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x - 1, player_y):
+                actions += [((player_x, player_y), (player_x - 1, player_y), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x - 1, player_y + 1):
+                actions += [((player_x, player_y), (player_x - 1, player_y + 1), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x - 1, player_y - 1):
+                actions += [((player_x, player_y), (player_x - 1, player_y - 1), i) for i in range(val, 0, -1)]
             # x still
-            if self.still_in_grid(player_x, player_y+1):
-                actions += [((player_x, player_y), (player_x, player_y+1), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x, player_y-1):
-                actions += [((player_x, player_y), (player_x, player_y-1), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x, player_y + 1):
+                actions += [((player_x, player_y), (player_x, player_y + 1), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x, player_y - 1):
+                actions += [((player_x, player_y), (player_x, player_y - 1), i) for i in range(val, 0, -1)]
             # x+1 still
-            if self.still_in_grid(player_x+1, player_y):
-                actions += [((player_x, player_y), (player_x+1, player_y), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x+1, player_y+1):
-                actions += [((player_x, player_y), (player_x+1, player_y+1), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x+1, player_y-1):
-                actions += [((player_x, player_y), (player_x+1, player_y-1), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x + 1, player_y):
+                actions += [((player_x, player_y), (player_x + 1, player_y), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x + 1, player_y + 1):
+                actions += [((player_x, player_y), (player_x + 1, player_y + 1), i) for i in range(val, 0, -1)]
+            if self.still_in_grid(player_x + 1, player_y - 1):
+                actions += [((player_x, player_y), (player_x + 1, player_y - 1), i) for i in range(val, 0, -1)]
         return actions
 
     def still_in_grid(self, x, y):
-        return x>0 and y>0 and x<self.rows-1 and y<self.columns-1
-
+        return 0 < x < self.rows - 1 and 0 < y < self.columns - 1

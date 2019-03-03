@@ -1,8 +1,9 @@
 import time
 from copy import deepcopy
 
-from Settings import HUMANS, VAMPIRES, WAREWOLVES
-from Heuristic import Heuristic
+from AI.Heuristic import Heuristic
+from AI.Settings import VAMPIRES, WAREWOLVES
+
 
 class Alphabeta:
     def __init__(self, board, player=VAMPIRES, profondeur_max=4):

@@ -1,8 +1,8 @@
 import time
 from copy import deepcopy
 
-from AI.Heuristic import Heuristic
-from AI.Settings import VAMPIRES, WAREWOLVES
+from Heuristic import Heuristic
+from Settings import VAMPIRES, WAREWOLVES
 
 
 class Alphabeta:
@@ -19,8 +19,8 @@ class Alphabeta:
         board = deepcopy(self.board)
 
         def maxvalue(board, alpha, beta, hauteur):
-            if hauteur >= self.profondeurmax or self.time_elapsed():
-                return self.heuristic_player.heuristic(board)
+            if hauteur >= self.profondeur_max or self.time_elapsed():
+                return self.heuristic_player.calculate(board)
             v = -100000
             for action in board.get_possible_actions(self.player):
                 boardcopy = deepcopy(board)
@@ -32,8 +32,8 @@ class Alphabeta:
             return v
 
         def minvalue(board, alpha, beta, hauteur):
-            if hauteur >= self.profondeurmax:
-                return self.heuristic_enemies.heuristic(board)
+            if hauteur >= self.profondeur_max:
+                return self.heuristic_enemies.calculate(board)
             v = 100000
             for action in board.get_possible_actions(self.enemy):
                 boardcopy = deepcopy(board)

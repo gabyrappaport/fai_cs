@@ -7,7 +7,8 @@ from AI.Heuristic import Heuristic
 class Alphabeta:
     def __init__(self, board, profondeur_max=4):
         self.board = board
-        self.heuristic = Heuristic(board)
+        self.heuristic_us = Heuristic(board)
+        self.heuristic_enemies = Heuristic(board)
         self.profondeur_max = profondeur_max
         self.start_time = time.time()
 
@@ -16,7 +17,7 @@ class Alphabeta:
 
         def maxvalue(board, alpha, beta, hauteur):
             if hauteur >= self.profondeurmax or self.time_elapsed():
-                return self.heuristic.heuristic(board)
+                return self.heuristic_us.heuristic(board)
             v = -100000
             for action in board.getPossibleColumns():
                 boardcopy = deepcopy(board)
@@ -29,7 +30,7 @@ class Alphabeta:
 
         def minvalue(board, alpha, beta, hauteur):
             if hauteur >= self.profondeurmax:
-                return self.heuristic.heuristic(board)
+                return self.heuristic_enemies.heuristic(board)
             v = 100000
             for action in board.getPossibleColumns():
                 boardcopy = deepcopy(board)

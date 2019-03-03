@@ -1,13 +1,11 @@
 class Board:
-    def __init__(self, row, column, us, them, humans):
+    def __init__(self, row, column, us, nbr_us, nbr_enemies, nbr_humans):
         self.row = row
         self.column = column
         self.us = us
-        self.them = them
-        self.humans = humans
+        self.nbr_us = nbr_us
+        self.nbr_enemies = nbr_enemies
+        self.nbr_humans = nbr_humans
 
-    def update_board_us(self, changes):
-        pass
-
-    def update_board_them(self, changes):
+    def update_board(self, changes):
         pass

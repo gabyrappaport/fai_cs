@@ -1,14 +1,16 @@
 import time
 from copy import deepcopy
 
-from AI.Heuristic import Heuristic
-
+from Settings import HUMANS, VAMPIRES, WAREWOLVES
+from Heuristic import Heuristic
 
 class Alphabeta:
-    def __init__(self, board, profondeur_max=4):
+    def __init__(self, board, player=VAMPIRES, profondeur_max=4):
         self.board = board
-        self.heuristic_us = Heuristic(board)
-        self.heuristic_enemies = Heuristic(board)
+        self.player = player
+        self.enemy = VAMPIRES if (player != VAMPIRES) else WAREWOLVES
+        self.heuristic_player = Heuristic(board, self.player)
+        self.heuristic_enemies = Heuristic(board, self.enemy)
         self.profondeur_max = profondeur_max
         self.start_time = time.time()
 
@@ -17,11 +19,11 @@ class Alphabeta:
 
         def maxvalue(board, alpha, beta, hauteur):
             if hauteur >= self.profondeurmax or self.time_elapsed():
-                return self.heuristic_us.heuristic(board)
+                return self.heuristic_player.heuristic(board)
             v = -100000
-            for action in board.getPossibleColumns():
+            for action in board.get_possible_actions(self.player):
                 boardcopy = deepcopy(board)
-                boardcopy.play(self.color, action)
+                boardcopy.play(action, self.player)
                 v = max(v, minvalue(boardcopy, alpha, beta, hauteur + 1))
                 if v >= beta:
                     return v
@@ -32,9 +34,9 @@ class Alphabeta:
             if hauteur >= self.profondeurmax:
                 return self.heuristic_enemies.heuristic(board)
             v = 100000
-            for action in board.getPossibleColumns():
+            for action in board.get_possible_actions(self.enemy):
                 boardcopy = deepcopy(board)
-                boardcopy.play(-self.color, action)
+                boardcopy.play(action, self.enemy)
                 v = min(v, maxvalue(boardcopy, alpha, beta, hauteur + 1))
                 if v <= alpha:
                     return v
@@ -44,9 +46,9 @@ class Alphabeta:
         meilleur_score = -100000
         beta = 100000
         coup = None
-        for action in board.getPossibleColumns():
+        for action in board.get_possible_actions(self.player):
             boardcopy = deepcopy(board)
-            boardcopy.play(self.color, action)
+            boardcopy.play(action, self.player)
             v = minvalue(boardcopy, meilleur_score, beta, 1)
             if v > meilleur_score:
                 meilleur_score = v

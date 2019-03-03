@@ -1,4 +1,5 @@
 import itertools
+import numpy as np
 from Settings import WAREWOLVES
 
 
@@ -49,7 +50,7 @@ class Board:
                 return
             self.vampires[(start_x, start_y)] -= num
             if self.vampires[(start_x, start_y)] == 0:
-                    del self.vampires[(start_x, start_y)]
+                del self.vampires[(start_x, start_y)]
             val = num
             if (end_x, end_y) in self.vampires:
                 val += self.vampires[(end_x, end_y)]
@@ -71,7 +72,7 @@ class Board:
 
     def get_possibilities(self, player_coords, val):
         player_x, player_y = player_coords
-        actions = [] # the case where that specific group does not move, # ((player_x, player_y), (player_x, player_y), val)
+        actions = []  # the case where that specific group does not move, # ((player_x, player_y), (player_x, player_y), val)
         if self.still_in_grid(player_x - 1, player_y):
             actions += [((player_x, player_y), (player_x - 1, player_y), val)]
         if self.still_in_grid(player_x - 1, player_y + 1):
@@ -94,3 +95,16 @@ class Board:
 
     def still_in_grid(self, x, y):
         return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
+
+    def transform_in_matrix(self):
+        M = [["_" for row in self.rows] for col in self.columns]
+        for position, nombre in self.vampires.items():
+            M[position] = str(nombre) + " V"
+
+        for position, nombre in self.humans.items():
+            M[position] += str(nombre) + " H"
+
+        for position, nombre in self.warewolves.items():
+            M[position] += str(nombre) + " W"
+
+        print(np.matrix(M))

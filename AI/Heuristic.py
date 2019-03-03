@@ -28,6 +28,7 @@ class Heuristic:
         if self.player_type == WAREWOLVES:
             player_locations = board.warewolves
             enemy_locations = board.vampires
+        # print("Calculating heur")
         for player_pos, player_num in player_locations.items():
             for enemy_pos, enemy_num in enemy_locations.items():
                 if self.euclidian(player_pos, enemy_pos) < self.distance_threshold:
@@ -35,13 +36,15 @@ class Heuristic:
             for human_pos, human_num in human_locations.items():
                 if self.euclidian(player_pos, human_pos) < self.distance_threshold:
                     result += self.heuristic_human(player_pos, human_pos, player_num, human_num)
+        # board.print_pretty()
+        # print("Result", result)
         return result
 
     def heuristic_enemy(self, start, end, player_num, enemy_num):
-        return self.coef_enemy * self.distance(start, end) * self.player_left(player_num, enemy_num, rapport_de_force_coef=1.5)
+        return self.coef_enemy * self.distance(start, end) * self.player_left_against_enemy(player_num, enemy_num)
 
     def heuristic_human(self, start, end, player_num, enemy_num):
-        return self.coef_humans * self.distance(start, end) * self.player_left(player_num, enemy_num)
+        return self.coef_humans * self.distance(start, end) * self.player_left_against_human(player_num, enemy_num)
 
     def euclidian(self, start, end):
         (start_x, start_y) = start
@@ -52,17 +55,29 @@ class Heuristic:
     def distance(self, start, end):
         return self.distance_lambda(self.euclidian(start, end))
 
-    def player_left(self, player_num, enemy_num, rapport_de_force_coef=1):
-        if player_num > rapport_de_force_coef * enemy_num:
+    def player_left_against_enemy(self, player_num, enemy_num):
+        if player_num > 1.5 * enemy_num:
             return self.enemy_lambda(player_num)
-        if player_num * rapport_de_force_coef < enemy_num:
-            return self.enemy_lambda(-player_num)
+        if player_num * 1.5 < enemy_num:
+            return -self.enemy_lambda(player_num)
         p = 0.5
         if player_num > enemy_num:
             p = player_num / enemy_num - 0.5
         if player_num < enemy_num:
             p = 0.5 * player_num / enemy_num
         return self.enemy_lambda(self.player_left_after_random_battle(p) * player_num)
+
+    def player_left_against_human(self, player_num, human_num):
+        if player_num > human_num:
+            return self.enemy_lambda(player_num+human_num)
+        if player_num < human_num:
+            return -self.enemy_lambda(player_num)
+        p = 0.5
+        if player_num > human_num:
+            p = player_num / human_num - 0.5
+        if player_num < human_num:
+            p = 0.5 * player_num / human_num
+        return self.enemy_lambda(self.player_left_after_random_battle(p) * player_num + p * human_num)
 
     def player_left_after_random_battle(self, p):
         return p * (2 * p - 1) - (1 - p)

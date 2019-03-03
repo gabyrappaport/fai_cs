@@ -13,9 +13,9 @@ class Alphabeta:
         self.heuristic_player = Heuristic(board, self.player)
         self.heuristic_enemies = Heuristic(board, self.enemy)
         self.profondeur_max = profondeur_max
-        self.start_time = time.time()
 
     def alphabeta(self):
+        self.start_time = time.time()
         board = deepcopy(self.board)
 
         def maxvalue(board, alpha, beta, hauteur):
@@ -51,8 +51,6 @@ class Alphabeta:
             boardcopy = deepcopy(board)
             boardcopy.play(action, self.player)
             v = minvalue(boardcopy, meilleur_score, beta, 1)
-            # print("\nScore", v)
-            # print("Move:", action)
             if v > meilleur_score:
                 meilleur_score = v
                 coup = action

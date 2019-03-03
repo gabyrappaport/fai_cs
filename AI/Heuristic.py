@@ -2,6 +2,8 @@ import math
 
 from Settings import VAMPIRES, WAREWOLVES
 
+def inverse(x):
+    return 1/x if x!=0 else 0
 
 def linear(x):
     return x
@@ -9,7 +11,7 @@ def linear(x):
 
 class Heuristic:
 
-    def __init__(self, board, player_type=VAMPIRES, distance_lambda=linear, enemy_lambda=linear,
+    def __init__(self, board, player_type=VAMPIRES, distance_lambda=inverse, enemy_lambda=linear,
                  distance_threshold=None):
         self.player_type = player_type
         self.coef_humans = 100

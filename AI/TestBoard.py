@@ -29,7 +29,10 @@ class TestBoard(Board):
 		del players[(start_x, start_y)]
 
 		if (not (end_x, end_y) in enemies) and (not (end_x, end_y) in self.humans):
-			players[(end_x, end_y)] = player_num
+			add = player_num
+			if (end_x, end_y) in players:
+				add += players[(end_x, end_y)]
+			players[(end_x, end_y)] = add
 			return players, enemies
 
 		# Enemy battle

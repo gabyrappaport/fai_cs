@@ -15,8 +15,7 @@ class Heuristic:
         self.player_type = player_type
         self.coef_humans = 10
         self.coef_enemy = 10
-        self.distance_threshold = math.max(board.rows,
-                                           board.columns) // 2 if not distance_threshold else distance_threshold
+        self.distance_threshold = math.max(board.rows, board.columns) // 2 if not distance_threshold else distance_threshold
         self.distance_lambda = distance_lambda
         self.enemy_lambda = enemy_lambda
 
@@ -38,8 +37,7 @@ class Heuristic:
         return result
 
     def heuristic_enemy(self, start, end, player_num, enemy_num):
-        return self.coef_enemy * self.distance(start, end) * self.player_left(player_num, enemy_num,
-                                                                              rapport_de_force_coef=1.5)
+        return self.coef_enemy * self.distance(start, end) * self.player_left(player_num, enemy_num, rapport_de_force_coef=1.5)
 
     def heuristic_human(self, start, end, player_num, enemy_num):
         return self.coef_enemy * self.distance(start, end) * self.player_left(player_num, enemy_num)

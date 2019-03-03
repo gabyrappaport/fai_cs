@@ -1,3 +1,4 @@
+import itertools
 from AI.Settings import WAREWOLVES
 
 
@@ -44,31 +45,39 @@ class Board:
         self.vampires[(end_x, end_y)] += num
 
     # todo: be smart about the actions order, une case peut pas etre depart et arrivee
+    # split the groups to go into different directions
     def get_possible_actions(self, player_type):
         actions = []  # [(depart = (x,y), arrivee=(x,y), nombre de personnes deplacees)
         player = self.vampires
         if player_type == WAREWOLVES:
             player = self.warewolves
-        for (player_x, player_y), val in player.items():
-            # x-1 still
-            if self.still_in_grid(player_x - 1, player_y):
-                actions += [((player_x, player_y), (player_x - 1, player_y), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x - 1, player_y + 1):
-                actions += [((player_x, player_y), (player_x - 1, player_y + 1), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x - 1, player_y - 1):
-                actions += [((player_x, player_y), (player_x - 1, player_y - 1), i) for i in range(val, 0, -1)]
-            # x still
-            if self.still_in_grid(player_x, player_y + 1):
-                actions += [((player_x, player_y), (player_x, player_y + 1), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x, player_y - 1):
-                actions += [((player_x, player_y), (player_x, player_y - 1), i) for i in range(val, 0, -1)]
-            # x+1 still
-            if self.still_in_grid(player_x + 1, player_y):
-                actions += [((player_x, player_y), (player_x + 1, player_y), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x + 1, player_y + 1):
-                actions += [((player_x, player_y), (player_x + 1, player_y + 1), i) for i in range(val, 0, -1)]
-            if self.still_in_grid(player_x + 1, player_y - 1):
-                actions += [((player_x, player_y), (player_x + 1, player_y - 1), i) for i in range(val, 0, -1)]
+
+        # v0, deplacements en groupe
+        groups = [self.get_possibilities(player_coords, val) for player_coords, val in player.items().sort(key=lambda x:x[1])]
+        # todo remove case where nobody moves
+        return [list(x) for x in itertools.product(*groups)]
+
+    def get_possibilities(self, player_coords, val):
+        player_x, player_y = player_coords
+        actions = [((player_x, player_y), (player_x, player_y), val)] # the case where that specific group does not move
+        if self.still_in_grid(player_x - 1, player_y):
+            actions += [((player_x, player_y), (player_x - 1, player_y), val)]
+        if self.still_in_grid(player_x - 1, player_y + 1):
+            actions += [((player_x, player_y), (player_x - 1, player_y + 1), val)]
+        if self.still_in_grid(player_x - 1, player_y - 1):
+            actions += [((player_x, player_y), (player_x - 1, player_y - 1), val)]
+        # x still
+        if self.still_in_grid(player_x, player_y + 1):
+            actions += [((player_x, player_y), (player_x, player_y + 1), val)]
+        if self.still_in_grid(player_x, player_y - 1):
+            actions += [((player_x, player_y), (player_x, player_y - 1), val)]
+        # x+1 still
+        if self.still_in_grid(player_x + 1, player_y):
+            actions += [((player_x, player_y), (player_x + 1, player_y), val)]
+        if self.still_in_grid(player_x + 1, player_y + 1):
+            actions += [((player_x, player_y), (player_x + 1, player_y + 1), val)]
+        if self.still_in_grid(player_x + 1, player_y - 1):
+            actions += [((player_x, player_y), (player_x + 1, player_y - 1), val)]
         return actions
 
     def still_in_grid(self, x, y):

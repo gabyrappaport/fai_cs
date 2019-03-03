@@ -93,4 +93,4 @@ class Board:
         return actions
 
     def still_in_grid(self, x, y):
-        return 0 < x < self.rows - 1 and 0 < y < self.columns - 1
+        return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1

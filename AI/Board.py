@@ -1,6 +1,9 @@
 import itertools
+
 import numpy as np
 from Settings import WAREWOLVES
+
+from AI.Settings import VAMPIRES
 
 
 class Board:
@@ -11,49 +14,55 @@ class Board:
         self.vampires = {}  # key = (x,y) ; value = number of vampires
         self.warewolves = {}
         self.humans = {}
-        self.reinit_numb()
 
-    def reinit_numb(self):
-        self.nbr_vampires = 0
-        self.nbr_warewolves = 0
-        self.nbr_humans = 0
+    def is_playing(self, player_type):
+        if player_type == WAREWOLVES:
+            self.player = Player(WAREWOLVES, self.warewolves)
+            self.enemy = Player(VAMPIRES, self.vampires)
+        else :
+            self.player = Player(VAMPIRES, self.vampires)
+            self.enemy = Player(WAREWOLVES, self.warewolves)
 
     def update_board(self, game_map):
-        self.reinit_numb()
         for (x, y, humans, vampires, warewolves) in game_map:
             if humans > 0:
                 self.humans[(x, y)] = humans
-                self.nbr_humans += humans
             if vampires > 0:
                 self.vampires[(x, y)] = vampires
-                self.nbr_vampires += vampires
             if warewolves > 0:
                 self.warewolves[(x, y)] = warewolves
-                self.nbr_warewolves += warewolves
 
-    def play(self, action, player_type):
+
+    # def update_numb_and_mean(self):
+    #     self.nbr_vampires = sum(self.vampires.values())
+    #     self.nbr_warewolves = sum(self.warewolves.values())
+    #     self.nbr_humans = sum(self.humans.values())
+    #
+    #     self.mean_vampires = self.nbr_vampires / len(self.vampires.keys()) if self.vampires else 0
+    #     self.mean_warewolves = self.nbr_warewolves / len(self.warewolves.keys()) if self.warewolves else 0
+    #     self.mean_humans = self.nbr_humans / len(self.humans.keys()) if self.humans else 0
+
+    def play(self, action):
         for move in action:
             (start_x, start_y), (end_x, end_y), num = move
-            if player_type == WAREWOLVES:
-                self.warewolves[(start_x, start_y)] -= num
-                if self.warewolves[(start_x, start_y)] == 0:
-                    del self.warewolves[(start_x, start_y)]
-                val = num
-                if (end_x, end_y) in self.warewolves:
-                    val += self.warewolves[(end_x, end_y)]
-                self.warewolves[(end_x, end_y)] = val
-                return
-            self.vampires[(start_x, start_y)] -= num
-            if self.vampires[(start_x, start_y)] == 0:
-                del self.vampires[(start_x, start_y)]
+            self.player.dict[(start_x, start_y)] -= num
+            if self.player.dict[(start_x, start_y)] == 0:
+                del self.player.dict[(start_x, start_y)]
             val = num
-            if (end_x, end_y) in self.vampires:
-                val += self.vampires[(end_x, end_y)]
-            self.vampires[(end_x, end_y)] = val
+            if (end_x, end_y) in self.player.dict.items():
+                val += self.player.dict[(end_x, end_y)]
+            self.player.dict[(end_x, end_y)] = val
+        self.update_dict()
 
-    # todo: be smart about the actions order, une case peut pas etre depart et arrivee
-    # split the groups to go into different directions
-    def get_possible_actions(self, player_type):
+    def update_dict(self):
+        if self.player.type == VAMPIRES:
+            self.vampires = self.player.dict
+            self.warewolves = self.enemy.dict
+        else:
+            self.warewolves = self.player.dict
+            self.vampires = self.enemy.dict
+
+    def get_possible_actions_dep(self, player_type):
         actions = []  # [(depart = (x,y), arrivee=(x,y), nombre de personnes deplacees)
         player = self.vampires
         if player_type == WAREWOLVES:
@@ -61,11 +70,36 @@ class Board:
 
         # v0, deplacements en groupe
         # todo: sort (.sort(key=lambda x:x[1]))
-        groups = [self.get_possibilities(player_coords, val) for player_coords, val in player.items()]
+        groups = [self.get_possibilities_move_together(player_coords, val, player_type) for player_coords, val in
+                  player.items()]
         # todo remove case where nobody moves
-        return [list(x) for x in itertools.product(*groups)]
+        result = [list(x) for x in itertools.product(*groups)]
+        return result
 
-    def get_possibilities(self, player_coords, val):
+    # todo: source cant be target
+    def get_possible_actions(self):
+        # todo: sort (.sort(key=lambda x:x[1]))
+        actions = []
+        for player_coords, val in self.player.dict.items():
+            all_together = self.get_possibilities_move_together(player_coords, val)
+            split = []
+            if val > self.player.get_mean():
+                split = self.actions_after_split_in_two(player_coords, val)
+            actions.append([()] + split + all_together)
+        rsult = [self.flatten(list(x)) for x in itertools.product(*actions)]
+        return rsult
+
+    def flatten(self, l):
+        result = []
+        for item in l:
+            if isinstance(item, list):
+                for i in item:
+                    if i != (): result.append(i)
+            else:
+                if item != (): result.append(item)
+        return result
+
+    def get_possibilities_move_together(self, player_coords, val):
         player_x, player_y = player_coords
         actions = []  # the case where that specific group does not move, # ((player_x, player_y), (player_x, player_y), val)
         if self.still_in_grid(player_x - 1, player_y):
@@ -88,18 +122,43 @@ class Board:
             actions += [((player_x, player_y), (player_x + 1, player_y - 1), val)]
         return actions
 
+    def actions_after_split_in_two(self, player_coords, val):
+        actions = []
+        for i in range(val // 2, val // 2 + 1):
+            actions_split = []
+            actions_split += [self.get_possibilities_move_together(player_coords, i)]
+            actions_split += [self.get_possibilities_move_together(player_coords, val - i)]
+            for x in itertools.product(*actions_split):
+                a, b = x
+                if list(a)[1] != list(b)[1]:  # We remove the cases where each split moves to the same direction.
+                    actions += [list(x)]
+        return actions
+
     def still_in_grid(self, x, y):
         return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
 
     def print_pretty(self):
         M = [["_" for row in range(self.rows)] for col in range(self.columns)]
         for (x, y), nombre in self.vampires.items():
-            M[x][y] = str(nombre) + "V"
+            M[x][y] += str(nombre) + "V"
 
         for (x, y), nombre in self.humans.items():
-            M[x][y] = str(nombre) + "H"
+            M[x][y] += str(nombre) + "H"
 
         for (x, y), nombre in self.warewolves.items():
-            M[x][y] = str(nombre) + "W"
+            M[x][y] += str(nombre) + "W"
 
         print(np.matrix(M))
+
+
+class Player:
+
+    def __init__(self, type, dict):
+        self.type = type
+        self.dict = dict
+
+    def get_count(self):
+        return sum(self.dict.values())
+
+    def get_mean(self):
+        return sum(self.dict.values()) / len(self.dict.keys()) if self.dict else 0

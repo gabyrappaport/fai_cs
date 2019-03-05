@@ -1,3 +1,4 @@
+import sys
 import time
 from copy import deepcopy
 
@@ -6,52 +7,60 @@ from Settings import VAMPIRES, WAREWOLVES
 
 
 class Alphabeta:
-    def __init__(self, board, player=VAMPIRES, profondeur_max=20):
+    def __init__(self, board, player=VAMPIRES, profondeur_max=4):
         self.board = board
         self.player = player
         self.enemy = VAMPIRES if (player != VAMPIRES) else WAREWOLVES
-        self.heuristic_player = Heuristic(board, self.player)
-        self.heuristic_enemies = Heuristic(board, self.enemy)
+        self.heuristic_player = Heuristic(board)
+        self.heuristic_enemies = Heuristic(board)
         self.profondeur_max = profondeur_max
 
     def alphabeta(self):
         self.start_time = time.time()
         board = deepcopy(self.board)
+        board.is_playing(self.player)
 
         def maxvalue(board, alpha, beta, hauteur):
+            board.is_playing(self.player)
             if hauteur >= self.profondeur_max or self.time_elapsed():
-                return self.heuristic_player.calculate(board)
-            v = -100000
-            for action in board.get_possible_actions(self.player):
-                boardcopy = deepcopy(board)
-                boardcopy.play(action, self.player)
-                v = max(v, minvalue(boardcopy, alpha, beta, hauteur + 1))
-                if v >= beta:
-                    return v
-                alpha = max(alpha, v)
+               return self.heuristic_enemies.calculate(board)
+            v = -sys.maxsize
+            for action in board.get_possible_actions():
+                if action != []:
+                    if action == [((0, 2), (0, 3), 25), ((0, 2), (0, 1), 25), ((1, 3), (0, 3), 5)]:
+                        print()
+                    boardcopy = deepcopy(board)
+                    boardcopy.is_playing(self.player)
+                    boardcopy.play(action)
+                    v = max(v, minvalue(boardcopy, alpha, beta, hauteur + 1))
+                    if v >= beta:
+                        return v
+                    alpha = max(alpha, v)
             return v
 
         def minvalue(board, alpha, beta, hauteur):
+            board.is_playing(self.enemy)
             if hauteur >= self.profondeur_max:
-                return self.heuristic_enemies.calculate(board)
-            v = 100000
-            for action in board.get_possible_actions(self.enemy):
-                boardcopy = deepcopy(board)
-                boardcopy.play(action, self.enemy)
-                v = min(v, maxvalue(boardcopy, alpha, beta, hauteur + 1))
-                if v <= alpha:
-                    return v
-                beta = min(beta, v)
+                return self.heuristic_player.calculate(board)
+            v = sys.maxsize
+            for action in board.get_possible_actions():
+                if action != []:
+                    boardcopy = deepcopy(board)
+                    boardcopy.is_playing(self.enemy)
+                    boardcopy.play(action)
+                    v = min(v, maxvalue(boardcopy, alpha, beta, hauteur + 1))
+                    if v <= alpha:
+                        return v
+                    beta = min(beta, v)
             return v
 
-        meilleur_score = -100000
-        beta = 100000
+        meilleur_score = -sys.maxsize
+        beta = sys.maxsize
         coup = None
-        for action in board.get_possible_actions(self.player):
+        for action in board.get_possible_actions():
             boardcopy = deepcopy(board)
-            boardcopy.play(action, self.player)
+            boardcopy.play(action)
             v = minvalue(boardcopy, meilleur_score, beta, 1)
-            print("Val", action, v)
             if v > meilleur_score:
                 meilleur_score = v
                 coup = action

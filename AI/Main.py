@@ -23,10 +23,12 @@ if __name__ == "__main__":
 
         alpha_vampire.board = board
         move = alpha_vampire.alphabeta()
+        print("VAMPIRES move", move)
         board.play_with_battle(move, VAMPIRES)
         board.print_pretty()
 
         alpha_warewold.board = board
         move_w = alpha_warewold.alphabeta()
+        print("WAREWOLVES move", move_w)
         board.play_with_battle(move_w, WAREWOLVES)
         board.print_pretty()

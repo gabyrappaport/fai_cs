@@ -25,12 +25,9 @@ class Alphabeta:
             if hauteur >= self.profondeur_max or self.time_elapsed():
                return self.heuristic_enemies.calculate(board)
             v = -sys.maxsize
-            for action in board.get_possible_actions():
+            for action in board.get_possible_actions_dep():
                 if action != []:
-                    if action == [((0, 2), (0, 3), 25), ((0, 2), (0, 1), 25), ((1, 3), (0, 3), 5)]:
-                        print()
                     boardcopy = deepcopy(board)
-                    boardcopy.is_playing(self.player)
                     boardcopy.play(action)
                     v = max(v, minvalue(boardcopy, alpha, beta, hauteur + 1))
                     if v >= beta:
@@ -43,10 +40,9 @@ class Alphabeta:
             if hauteur >= self.profondeur_max:
                 return self.heuristic_player.calculate(board)
             v = sys.maxsize
-            for action in board.get_possible_actions():
+            for action in board.get_possible_actions_dep():
                 if action != []:
                     boardcopy = deepcopy(board)
-                    boardcopy.is_playing(self.enemy)
                     boardcopy.play(action)
                     v = min(v, maxvalue(boardcopy, alpha, beta, hauteur + 1))
                     if v <= alpha:
@@ -56,8 +52,8 @@ class Alphabeta:
 
         meilleur_score = -sys.maxsize
         beta = sys.maxsize
-        coup = None
-        for action in board.get_possible_actions():
+        coup = []
+        for action in board.get_possible_actions_dep():
             boardcopy = deepcopy(board)
             boardcopy.play(action)
             v = minvalue(boardcopy, meilleur_score, beta, 1)

@@ -3,7 +3,7 @@ import itertools
 import numpy as np
 from Settings import WAREWOLVES
 
-from AI.Settings import VAMPIRES
+from Settings import VAMPIRES
 
 
 class Board:
@@ -62,7 +62,8 @@ class Board:
             self.warewolves = self.player.dict
             self.vampires = self.enemy.dict
 
-    def get_possible_actions_dep(self, player_type):
+    def get_possible_actions_dep(self):
+        player_type = self.player.type
         actions = []  # [(depart = (x,y), arrivee=(x,y), nombre de personnes deplacees)
         player = self.vampires
         if player_type == WAREWOLVES:
@@ -70,7 +71,7 @@ class Board:
 
         # v0, deplacements en groupe
         # todo: sort (.sort(key=lambda x:x[1]))
-        groups = [self.get_possibilities_move_together(player_coords, val, player_type) for player_coords, val in
+        groups = [self.get_possibilities_move_together(player_coords, val) for player_coords, val in
                   player.items()]
         # todo remove case where nobody moves
         result = [list(x) for x in itertools.product(*groups)]

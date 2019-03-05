@@ -49,7 +49,7 @@ class Board:
             if self.player.dict[(start_x, start_y)] == 0:
                 del self.player.dict[(start_x, start_y)]
             val = num
-            if (end_x, end_y) in self.player.dict.items():
+            if (end_x, end_y) in self.player.dict:
                 val += self.player.dict[(end_x, end_y)]
             self.player.dict[(end_x, end_y)] = val
         self.update_dict()
@@ -86,9 +86,9 @@ class Board:
             split = []
             if val > self.player.get_mean():
                 split = self.actions_after_split_in_two(player_coords, val)
-            actions.append([()] + split + all_together)
-        rsult = [self.flatten(list(x)) for x in itertools.product(*actions)]
-        return rsult
+            actions.append(split + all_together)
+        result = [self.flatten(list(x)) for x in itertools.product(*actions)]
+        return result
 
     def flatten(self, l):
         result = []

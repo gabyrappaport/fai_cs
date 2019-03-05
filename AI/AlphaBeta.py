@@ -7,7 +7,7 @@ from Settings import VAMPIRES, WAREWOLVES
 
 
 class Alphabeta:
-    def __init__(self, board, player=VAMPIRES, profondeur_max=4):
+    def __init__(self, board, player=VAMPIRES, profondeur_max=4): # todo: prof pas > a la dim
         self.board = board
         self.player = player
         self.enemy = VAMPIRES if (player != VAMPIRES) else WAREWOLVES
@@ -23,9 +23,9 @@ class Alphabeta:
         def maxvalue(board, alpha, beta, hauteur):
             board.is_playing(self.player)
             if hauteur >= self.profondeur_max or self.time_elapsed():
-               return self.heuristic_enemies.calculate(board)
+                return self.heuristic_player.calculate(board)
             v = -sys.maxsize
-            for action in board.get_possible_actions_dep():
+            for action in board.get_possible_actions():
                 if action != []:
                     boardcopy = deepcopy(board)
                     boardcopy.play(action)
@@ -36,11 +36,11 @@ class Alphabeta:
             return v
 
         def minvalue(board, alpha, beta, hauteur):
-            board.is_playing(self.enemy)
+            board.is_playing(self.player)
             if hauteur >= self.profondeur_max:
                 return self.heuristic_player.calculate(board)
             v = sys.maxsize
-            for action in board.get_possible_actions_dep():
+            for action in board.get_possible_actions():
                 if action != []:
                     boardcopy = deepcopy(board)
                     boardcopy.play(action)
@@ -53,14 +53,15 @@ class Alphabeta:
         meilleur_score = -sys.maxsize
         beta = sys.maxsize
         coup = []
-        for action in board.get_possible_actions_dep():
+        for action in board.get_possible_actions():
             boardcopy = deepcopy(board)
             boardcopy.play(action)
             v = minvalue(boardcopy, meilleur_score, beta, 1)
+            # print("Score", action, v)
             if v > meilleur_score:
                 meilleur_score = v
                 coup = action
-
+        # print("Best", coup, meilleur_score)
         return coup
 
     def time_elapsed(self):

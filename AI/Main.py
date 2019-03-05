@@ -12,13 +12,18 @@ if __name__ == "__main__":
         (1, 2, 3, 0, 0),
         (1, 3, 0, 5, 0),
     ]
+    # game_map = [
+    #     # (lign, col,H ,V , W)
+    #     (0, 0, 0, 0, 6),
+    #     (0, 1, 0, 58, 0),
+    # ]
     board.update_board(game_map)
     board.print_pretty()
 
     alpha_vampire = Alphabeta(board, player=VAMPIRES)
     alpha_warewold = Alphabeta(board, player=WAREWOLVES)
 
-    for i in range(10):
+    for i in range(2):
         print("\n Tour", i)
 
         alpha_vampire.board = board

@@ -1,9 +1,8 @@
 import itertools
 
 import numpy as np
-from Settings import WAREWOLVES
-
 from Settings import VAMPIRES
+from Settings import WAREWOLVES
 
 
 class Board:
@@ -19,7 +18,7 @@ class Board:
         if player_type == WAREWOLVES:
             self.player = Player(WAREWOLVES, self.warewolves)
             self.enemy = Player(VAMPIRES, self.vampires)
-        else :
+        else:
             self.player = Player(VAMPIRES, self.vampires)
             self.enemy = Player(WAREWOLVES, self.warewolves)
 
@@ -31,16 +30,6 @@ class Board:
                 self.vampires[(x, y)] = vampires
             if warewolves > 0:
                 self.warewolves[(x, y)] = warewolves
-
-
-    # def update_numb_and_mean(self):
-    #     self.nbr_vampires = sum(self.vampires.values())
-    #     self.nbr_warewolves = sum(self.warewolves.values())
-    #     self.nbr_humans = sum(self.humans.values())
-    #
-    #     self.mean_vampires = self.nbr_vampires / len(self.vampires.keys()) if self.vampires else 0
-    #     self.mean_warewolves = self.nbr_warewolves / len(self.warewolves.keys()) if self.warewolves else 0
-    #     self.mean_humans = self.nbr_humans / len(self.humans.keys()) if self.humans else 0
 
     def play(self, action):
         for move in action:
@@ -77,9 +66,7 @@ class Board:
         result = [list(x) for x in itertools.product(*groups)]
         return result
 
-    # todo: source cant be target
     def get_possible_actions(self):
-        # todo: sort (.sort(key=lambda x:x[1]))
         actions = []
         for player_coords, val in self.player.dict.items():
             all_together = self.get_possibilities_move_together(player_coords, val)
@@ -88,17 +75,28 @@ class Board:
                 split = self.actions_after_split_in_two(player_coords, val)
             actions.append(split + all_together)
         result = [self.flatten(list(x)) for x in itertools.product(*actions)]
-        return result
+        return list(filter(([]).__ne__, result))
 
     def flatten(self, l):
         result = []
+        start = []
+        end = []
         for item in l:
             if isinstance(item, list):
                 for i in item:
-                    if i != (): result.append(i)
+                    if i != ():
+                        start.append(i[0])
+                        end.append(i[1])
+                        result.append(i)
             else:
-                if item != (): result.append(item)
-        return result
+                if item != ():
+                    start.append(item[0])
+                    end.append(item[1])
+                    result.append(item)
+        intersection = set(start).intersection(end)
+        if len(intersection) == 0:
+            return result
+        return []
 
     def get_possibilities_move_together(self, player_coords, val):
         player_x, player_y = player_coords
@@ -139,15 +137,15 @@ class Board:
         return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
 
     def print_pretty(self):
-        M = [["_" for row in range(self.rows)] for col in range(self.columns)]
+        M = [["__" for row in range(self.rows)] for col in range(self.columns)]
         for (x, y), nombre in self.vampires.items():
-            M[x][y] += str(nombre) + "V"
+            M[x][y] = str(nombre) + "V"
 
         for (x, y), nombre in self.humans.items():
-            M[x][y] += str(nombre) + "H"
+            M[x][y] = str(nombre) + "H"
 
         for (x, y), nombre in self.warewolves.items():
-            M[x][y] += str(nombre) + "W"
+            M[x][y] = str(nombre) + "W"
 
         print(np.matrix(M))
 

@@ -2,17 +2,16 @@ import sys
 import time
 from copy import deepcopy
 
-from Heuristic import Heuristic
+from Heuristic import Heuristic, HeuristicAllEnvironnement
 from Settings import VAMPIRES, WAREWOLVES
 
 
 class Alphabeta:
-    def __init__(self, board, player=VAMPIRES, profondeur_max=4): # todo: prof pas > a la dim
+    def __init__(self, board, player=VAMPIRES, profondeur_max=4, heuristic_player=Heuristic): # todo: prof pas > a la dim
         self.board = board
         self.player = player
         self.enemy = VAMPIRES if (player != VAMPIRES) else WAREWOLVES
-        self.heuristic_player = Heuristic(board)
-        self.heuristic_enemies = Heuristic(board)
+        self.heuristic_player = heuristic_player(board)
         self.profondeur_max = profondeur_max
 
     def alphabeta(self):

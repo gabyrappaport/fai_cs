@@ -2,15 +2,18 @@ from AlphaBeta import Alphabeta
 from Settings import VAMPIRES, WAREWOLVES
 from TestBoard import TestBoard
 
+from Heuristic import HeuristicAllEnvironnement
+
 if __name__ == "__main__":
 
     board = TestBoard(5, 5)
     game_map = [
         # (lign, col,H ,V , W)
-        (0, 2, 0, 50, 0),
-        (1, 1, 0, 0, 6),
-        (1, 2, 3, 0, 0),
-        (1, 3, 0, 5, 0),
+        (1, 1, 0, 0, 3),
+        (3, 1, 0, 3, 0),
+        (2, 3, 2, 0, 0),
+        #(0, 4, 1, 0, 0),
+        #(4, 4, 1, 0, 0),
     ]
     # game_map = [
     #     # (lign, col,H ,V , W)
@@ -23,7 +26,7 @@ if __name__ == "__main__":
     alpha_vampire = Alphabeta(board, player=VAMPIRES)
     alpha_warewold = Alphabeta(board, player=WAREWOLVES)
 
-    for i in range(2):
+    for i in range(10):
         print("\n Tour", i)
 
         alpha_vampire.board = board

@@ -1,6 +1,10 @@
 import socket
 from struct import pack
 
+from AI.AlphaBeta import Alphabeta
+from AI.Board import Board
+from AI.Settings import VAMPIRES, WAREWOLVES
+
 
 class Client:
     def __init__(self, ai_name):
@@ -10,6 +14,8 @@ class Client:
         self.connexion_avec_serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connexion_avec_serveur.connect((self.hote, self.port))
         self.open_connexion()
+        self.board = None
+        self.alphabeta = None
 
     def open_connexion(self):
         nme = b'NME' + pack("B", len(self.ai_name)) + self.ai_name.encode()
@@ -19,21 +25,32 @@ class Client:
             message_recu += self.connexion_avec_serveur.recv(1024)
         if message_recu[0:3].decode() == "SET":
             message_recu, rows, columns = self.SET(message_recu)
+            self.board = Board(rows, columns)
         else:
             raise (Exception("There is a problem in your socket...1"))
         try:
             message_recu, houses_coordinates = self.HUM(message_recu)
             message_recu, our_position = self.HME(message_recu)
             message_recu, initial_coordinates = self.MAP(message_recu)
+            self.board.update_board(initial_coordinates)
+            if our_position in self.board.vampires.keys():
+                self.board.is_playing(VAMPIRES)
+                self.alphabeta = Alphabeta(self.board, player=VAMPIRES)
+            else:
+                self.board.is_playing(WAREWOLVES)
+                self.alphabeta = Alphabeta(self.board, player=WAREWOLVES)
+            list_moves = self.alphabeta.alphabeta()
+            self.move(list_moves)
         except:
             raise (Exception("There is a problem in your socket...2"))
         self.listen()
 
-    def move(self, nbr_moves, list_moves):
+    def move(self,list_moves):
+        nbr_moves = len(list_moves)
         encoded_list_moves = b""
         for m in list_moves:
-            encoded_move = pack("B", m[0]) + pack("B", m[1]) \
-                           + pack("B", m[2]) + pack("B", m[3]) + pack("B", m[4])
+            encoded_move = pack("B", m[0][0]) + pack("B", m[0][1]) \
+                           + pack("B", m[2]) + pack("B", m[1][0]) + pack("B", m[1][1])
             encoded_list_moves += encoded_move  # (pack("d", int(encoded_move)))
         self.connexion_avec_serveur.send(b"MOV" + pack("B", nbr_moves) + encoded_list_moves)
 
@@ -46,9 +63,11 @@ class Client:
         elif msg_recu[0:3].decode() == "BYE":
             self.close_connexion()
         elif "UPD" in msg_recu[0:3].decode():
-            self.UPD(msg_recu)
-            self.move(1, [[4, 3, 4, 4, 4]])
-            # compute_next_move(info_De_upd)
+            message_recu, initial_coordinates = self.MAP(msg_recu)
+            self.board.update_board(initial_coordinates)
+            self.alphabeta.board = self.board
+            list_moves = self.alphabeta.alphabeta()
+            self.move(list_moves)
             self.listen()
 
     def SET(self, message):

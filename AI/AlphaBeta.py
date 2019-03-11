@@ -60,7 +60,6 @@ class Alphabeta:
             if v > meilleur_score:
                 meilleur_score = v
                 coup = action
-        # print("Best", coup, meilleur_score)
         return coup
 
     def time_elapsed(self):

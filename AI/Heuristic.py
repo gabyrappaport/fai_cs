@@ -15,6 +15,7 @@ class Heuristic:
 
         self.coef_humans = 100
         self.coef_enemy = 10
+        self.coef_presence = 10
         self.distance_threshold = max(board.rows, board.columns) // 2 if not distance_threshold else distance_threshold
         self.distance_lambda = distance_lambda
         self.enemy_lambda = enemy_lambda
@@ -26,7 +27,7 @@ class Heuristic:
         player_location = board.player.dict
         enemy_location = board.enemy.dict
         human_location = board.humans
-        result = 0
+        result = self.coef_presence * (board.player.get_count() - board.enemy.get_count())
         for player_pos, player_num in player_location.items():
             scores = []
             for enemy_pos, enemy_num in enemy_location.items():

@@ -2,9 +2,9 @@ import socket
 import sys
 from struct import pack
 
-from AlphaBeta import Alphabeta
-from Board import Board
-from Settings import VAMPIRES, WAREWOLVES
+from AI.AlphaBeta import Alphabeta
+from AI.Board import Board
+from AI.Settings import VAMPIRES, WAREWOLVES
 
 
 class Client:
@@ -119,7 +119,7 @@ class Client:
 
 
 if __name__ == "__main__":
-    ip = sys.argv[2] if len(sys.argv) > 2 else None
-    port = sys.argv[3] if len(sys.argv) > 3 else None
+    ip = sys.argv[1] if len(sys.argv) > 2 else None
+    port = sys.argv[2] if len(sys.argv) > 3 else None
     client = Client("We are on fire!", ip, port)
-    # ServeurConnection.py –myparams 123.123.3.5 6666
+    # ServeurConnection.py 123.123.3.5 6666

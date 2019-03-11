@@ -119,7 +119,8 @@ class Client:
 
 
 if __name__ == "__main__":
-    ip = sys.argv[1] if len(sys.argv) > 2 else None
-    port = sys.argv[2] if len(sys.argv) > 3 else None
-    client = Client("We are on fire!", ip, port)
+    ip = sys.argv[1]
+    port = sys.argv[2]
+    print(ip, port)
+    client = Client("We are on fire!", ip, int(port))
     # ServeurConnection.py 123.123.3.5 6666

@@ -28,7 +28,7 @@ class Alphabeta:
             for action in board.get_possible_actions():
                 if action != []:
                     boardcopy = deepcopy(board)
-                    boardcopy.play_test(action)
+                    boardcopy.play(action)
                     v = max(v, minvalue(boardcopy, alpha, beta, hauteur + 1))
                     if v >= beta:
                         return v

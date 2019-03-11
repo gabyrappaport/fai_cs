@@ -2,16 +2,16 @@ import socket
 import sys
 from struct import pack
 
-from AI.AlphaBeta import Alphabeta
-from AI.Board import Board
-from AI.Settings import VAMPIRES, WAREWOLVES
+from AlphaBeta import Alphabeta
+from Board import Board
+from Settings import VAMPIRES, WAREWOLVES
 
 
 class Client:
     def __init__(self, ai_name, hote="localhost", port=5555):
         self.ai_name = ai_name
-        self.hote = "localhost"
-        self.port = 5555
+        self.hote = hote
+        self.port = port
         self.connexion_avec_serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connexion_avec_serveur.connect((self.hote, self.port))
         self.board = None
@@ -34,14 +34,12 @@ class Client:
             message_recu, our_position = self.HME(message_recu)
             message_recu, initial_coordinates = self.MAP(message_recu)
             self.board.update_board(initial_coordinates)
-            if our_position in self.board.vampires.keys():
+            if (our_position[0], our_position[1]) in self.board.vampires:
                 self.board.is_playing(VAMPIRES)
                 self.alphabeta = Alphabeta(self.board, player=VAMPIRES)
             else:
                 self.board.is_playing(WAREWOLVES)
                 self.alphabeta = Alphabeta(self.board, player=WAREWOLVES)
-            list_moves = self.alphabeta.alphabeta()
-            self.move(list_moves)
         except:
             raise (Exception("There is a problem in your socket...2"))
         self.listen()
@@ -64,8 +62,8 @@ class Client:
         elif msg_recu[0:3].decode() == "BYE":
             self.close_connexion()
         elif "UPD" in msg_recu[0:3].decode():
-            message_recu, initial_coordinates = self.MAP(msg_recu)
-            self.board.update_board(initial_coordinates)
+            message_recu, coordinates = self.MAP(msg_recu)
+            self.board.update_board(coordinates)
             self.alphabeta.board = self.board
             list_moves = self.alphabeta.alphabeta()
             self.move(list_moves)

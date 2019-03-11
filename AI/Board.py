@@ -1,4 +1,6 @@
 import itertools
+import math
+import random
 
 import numpy as np
 from Settings import VAMPIRES
@@ -24,12 +26,12 @@ class Board:
 
     def update_board(self, game_map):
         for (x, y, humans, vampires, warewolves) in game_map:
-            if humans > 0:
-                self.humans[(x, y)] = humans
-            if vampires > 0:
-                self.vampires[(x, y)] = vampires
-            if warewolves > 0:
-                self.warewolves[(x, y)] = warewolves
+            self.humans[(x, y)] = humans
+            self.vampires[(x, y)] = vampires
+            self.warewolves[(x, y)] = warewolves
+            if self.humans[(x, y)] == 0: del self.humans[(x, y)]
+            if self.vampires[(x, y)] == 0: del self.vampires[(x, y)]
+            if self.warewolves[(x, y)] == 0: del self.warewolves[(x, y)]
 
     def play(self, action):
         for move in action:
@@ -43,79 +45,70 @@ class Board:
             self.player.dict[(end_x, end_y)] = val
         self.update_dict()
 
-    def play_with_battle(self, action, player_type):
-        for single_action in action:
-            players, enemies = self.battle(single_action, player_type)
-            if player_type == VAMPIRES:
-                self.vampires = players
-                self.warewolves = enemies
-            else:
-                self.vampires = enemies
-                self.warewolves = players
+    def play_dep(self, moves):
+        for move in moves:
+            (start_x, start_y), (end_x, end_y), num = move
+            self.player.dict[(start_x, start_y)] -= num
+            if self.player.dict[(start_x, start_y)] == 0:
+                del self.player.dict[(start_x, start_y)]
+                self.update_dict()
+                return
+            if (not (end_x, end_y) in self.enemy.dict) and (not (end_x, end_y) in self.humans):
+                add = num
+                if (end_x, end_y) in self.player.dict:
+                    add += self.player.dict[(end_x, end_y)]
+                self.player.dict[(end_x, end_y)] = add
+                self.update_dict()
+                return
 
-    def battle(self, move, player_type):
-        # if overlap, do battle return move
-        # else directly return move
-        (start_x, start_y), (end_x, end_y), player_num = move
-        enemies = self.warewolves if (player_type == VAMPIRES) else self.vampires
-        players = self.warewolves if (player_type != VAMPIRES) else self.vampires
-
-        # For now, since they all move in group
-        players[(start_x, start_y)] -= player_num
-        if players[(start_x, start_y)] == 0:
-            del players[(start_x, start_y)]
-
-        if (not (end_x, end_y) in enemies) and (not (end_x, end_y) in self.humans):
-            add = player_num
-            if (end_x, end_y) in players:
-                add += players[(end_x, end_y)]
-            players[(end_x, end_y)] = add
-            return players, enemies
-
-        # Enemy battle
-        if (end_x, end_y) in enemies:
-            enemies_num = enemies[(end_x, end_y)]
-            if enemies_num > 1.5 * player_num:
-                enemies[(end_x, end_y)] += player_num
-                return players, enemies
-            if player_num > 1.5 * enemies_num:
-                del enemies[(end_x, end_y)]
-                players[(end_x, end_y)] = player_num + enemies_num
-                return players, enemies
+                # Enemy battle
+            if (end_x, end_y) in self.enemy.dict:
+                enemies_num = self.enemy.dict[(end_x, end_y)]
+                if enemies_num > 1.5 * num:
+                    self.enemy.dict[(end_x, end_y)] += num
+                    self.update_dict()
+                    return
+                if num > 1.5 * enemies_num:
+                    del self.enemy.dict[(end_x, end_y)]
+                    self.player.dict[(end_x, end_y)] = num + enemies_num
+                    self.update_dict()
+                    return
             p = 0.5
-            if player_num > enemies_num:
-                p = player_num / enemies_num - 0.5
-            if enemies_num > player_num:
-                p = 0.5 * player_num / enemies_num
+            if num > enemies_num:
+                p = num / enemies_num - 0.5
+            if enemies_num > num:
+                p = 0.5 * num / enemies_num
             rand = random.random()
             if rand < p:
                 # Player wins
-                del enemies[(end_x, end_y)]
-                players[(end_x, end_y)] = math.floor(p * player_num)
+                del self.enemy.dict[(end_x, end_y)]
+                self.player.dict[(end_x, end_y)] = math.floor(p * num)
+                self.update_dict()
+                return
             else:
-                enemies[(end_x, end_y)] = math.floor((1 - p) * enemies_num)
-            return players, enemies
-
-        # Human battle
-        if (end_x, end_y) in self.humans:
-            humans_num = self.humans[(end_x, end_y)]
-            if humans_num > player_num:
-                return players, enemies
-            if player_num > humans_num:
-                del self.humans[(end_x, end_y)]
-                players[(end_x, end_y)] = player_num + humans_num
-                return players, enemies
-            p = 0.5
-            if player_num > humans_num:
-                p = player_num / humans_num - 0.5
-            if humans_num > player_num:
-                p = 0.5 * player_num / humans_num
-            rand = random.random()
-            if rand < p:
-                # Player wins
-                del self.humans[(end_x, end_y)]
-                players[(end_x, end_y)] = math.floor(p * player_num) + math.floor(p * humans_num)
-            return players, enemies
+                self.enemy.dict[(end_x, end_y)] = math.floor((1 - p) * enemies_num)
+                self.update_dict()
+                return
+            # Human battle
+            if (end_x, end_y) in self.humans:
+                humans_num = self.humans[(end_x, end_y)]
+                if num > humans_num:
+                    del self.humans[(end_x, end_y)]
+                    self.player.dict[(end_x, end_y)] = num + humans_num
+                    self.update_dict()
+                    return
+                p = 0.5
+                if num > humans_num:
+                    p = num / humans_num - 0.5
+                if humans_num > num:
+                    p = 0.5 * num / humans_num
+                rand = random.random()
+                if rand < p:
+                    # Player wins
+                    del self.humans[(end_x, end_y)]
+                    self.player.dict[(end_x, end_y)] = math.floor(p * num) + math.floor(p * humans_num)
+                    self.update_dict()
+                    return
 
     def update_dict(self):
         if self.player.type == VAMPIRES:

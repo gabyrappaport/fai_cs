@@ -31,15 +31,15 @@ class Heuristic:
             scores = []
             for enemy_pos, enemy_num in enemy_location.items():
                 d = self.euclidian(player_pos, enemy_pos)
-                #if d <= self.distance_threshold:
-                #print("distance enemy", d)
-                scores += [self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num, board)]
+                if d <= self.distance_threshold:
+                    #print("distance enemy", d)
+                    scores += [self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num, board)]
             #print("scores enemy", scores)
             for human_pos, human_num in human_location.items():
                 d = self.euclidian(player_pos, human_pos)
-                #if d <= self.distance_threshold:
-                #print("distance human", d)
-                scores += [self.heuristic_human(player_pos, human_pos, player_num, human_num)]
+                if d <= self.distance_threshold:
+                    #print("distance human", d)
+                    scores += [self.heuristic_human(player_pos, human_pos, player_num, human_num)]
             #print("scores total", scores)
             if len(scores) > 0:
                 result += self.max_abs(scores)

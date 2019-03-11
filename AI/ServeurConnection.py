@@ -33,7 +33,11 @@ class Client:
             message_recu, houses_coordinates = self.HUM(message_recu)
             message_recu, our_position = self.HME(message_recu)
             message_recu, initial_coordinates = self.MAP(message_recu)
+            print("initial coo", initial_coordinates)
             self.board.update_board(initial_coordinates)
+            print("vampires", self.board.vampires)
+            print("humans", self.board.humans)
+            print("warewolves", self.board.warewolves)
             if (our_position[0], our_position[1]) in self.board.vampires:
                 self.board.is_playing(VAMPIRES)
                 self.alphabeta = Alphabeta(self.board, player=VAMPIRES)
@@ -63,7 +67,11 @@ class Client:
             self.close_connexion()
         elif "UPD" in msg_recu[0:3].decode():
             message_recu, coordinates = self.MAP(msg_recu)
+            print("coordinate", coordinates)
             self.board.update_board(coordinates)
+            print("vampires", self.board.vampires)
+            print("humans", self.board.humans)
+            print("warewolves", self.board.warewolves)
             self.alphabeta.board = self.board
             list_moves = self.alphabeta.alphabeta()
             self.move(list_moves)

@@ -20,32 +20,52 @@ class Heuristic:
         self.enemy_lambda = enemy_lambda
 
     def calculate(self, board):
+        #print("compute heuristic")
+        #print(board.player.type)
+        #board.print_pretty()
         player_location = board.player.dict
         enemy_location = board.enemy.dict
         human_location = board.humans
-        # if board in self.score_mem: return self.score_mem[board]
-        result = 0 #board.player.get_count()*self.coef_presence - board.enemy.get_count()*self.coef_presence
-        # Au lieu de tout sommer on peut prendre le score max par point
+        result = 0
         for player_pos, player_num in player_location.items():
             scores = []
             for enemy_pos, enemy_num in enemy_location.items():
                 d = self.euclidian(player_pos, enemy_pos)
-                if d <= self.distance_threshold:
-                    scores += [self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num)]
+                #if d <= self.distance_threshold:
+                #print("distance enemy", d)
+                scores += [self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num, board)]
+            #print("scores enemy", scores)
             for human_pos, human_num in human_location.items():
                 d = self.euclidian(player_pos, human_pos)
-                if d <= self.distance_threshold:
-                    scores += [self.heuristic_human(player_pos, human_pos, player_num, human_num)]
-            # print("\nScores", scores, board.player.type, board.enemy.type)
+                #if d <= self.distance_threshold:
+                #print("distance human", d)
+                scores += [self.heuristic_human(player_pos, human_pos, player_num, human_num)]
+            #print("scores total", scores)
             if len(scores) > 0:
-                result += max(scores)
+                result += self.max_abs(scores)
+        ##print("result", result)
         return result
 
-    def heuristic_enemy(self, start, end, player_num, enemy_num):
+    def max_abs(self, scores):
+        max = 0
+        for i in range(len(scores)):
+            if abs(scores[i]) > abs(max):
+                max = scores[i]
+        return max
+
+    def heuristic_enemy(self, player_pos, enemy_pos, player_num, enemy_num, board):
+        #if enemy_pos in board.humans:
+        #    enemy_num = self.player_left_against_human(enemy_num, board.humans[enemy_pos])
+        #if player_pos in board.humans:
+        #    player_num = self.player_left_against_human(player_num, board.humans[player_pos])
         player_left = self.player_left_against_enemy(player_num, enemy_num)
-        return self.coef_enemy * self.distance(start, end) * player_left
+        ##print("player left", player_left)
+        return self.coef_enemy * self.distance(player_pos, enemy_pos) * player_left
 
     def heuristic_human(self, start, end, player_num, human_num):
+        #print("player left against human", self.player_left_against_human(player_num, human_num))
+        #print("distance human", self.distance(start, end), "start", start, "end", end)
+        #print('coef', self.coef_humans)
         return self.coef_humans * self.distance(start, end) * self.player_left_against_human(player_num, human_num)
 
     def euclidian(self, start, end):
@@ -103,7 +123,7 @@ class HeuristicAllEnvironnement(Heuristic):
                 d = self.euclidian(player_pos, human_pos)
                 if d <= self.distance_threshold:
                     scores += self.heuristic_human(player_pos, human_pos, player_num, human_num)
-        # print("Got result", result, len(player_location.items()), len(enemy_location.items()))
+        # #print("Got result", result, len(player_location.items()), len(enemy_location.items()))
         return result
 
 

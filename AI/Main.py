@@ -10,7 +10,7 @@ if __name__ == "__main__":
     game_map = [
         # (lign, col,H ,V , W)
         (1, 1, 0, 0, 3),
-        (3, 1, 0, 3, 0),
+        (3, 1, 0, 4, 0),
         (2, 3, 2, 0, 0),
         #(0, 4, 1, 0, 0),
         #(4, 4, 1, 0, 0),
@@ -29,14 +29,16 @@ if __name__ == "__main__":
     for i in range(10):
         print("\n Tour", i)
 
+        alpha_warewold.board = board
+        move_w = alpha_warewold.alphabeta()
+        print("WAREWOLVES move", move_w)
+        board.play_with_battle(move_w, WAREWOLVES)
+        board.print_pretty()
+
         alpha_vampire.board = board
         move = alpha_vampire.alphabeta()
         print("VAMPIRES move", move)
         board.play_with_battle(move, VAMPIRES)
         board.print_pretty()
 
-        alpha_warewold.board = board
-        move_w = alpha_warewold.alphabeta()
-        print("WAREWOLVES move", move_w)
-        board.play_with_battle(move_w, WAREWOLVES)
-        board.print_pretty()
+

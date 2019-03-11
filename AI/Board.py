@@ -2,7 +2,6 @@ import itertools
 import math
 import random
 
-import numpy as np
 from Settings import VAMPIRES
 from Settings import WAREWOLVES
 
@@ -203,18 +202,18 @@ class Board:
     def still_in_grid(self, x, y):
         return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
 
-    def print_pretty(self):
-        M = [["__" for row in range(self.rows)] for col in range(self.columns)]
-        for (x, y), nombre in self.vampires.items():
-            M[x][y] += str(nombre) + "V"
-
-        for (x, y), nombre in self.humans.items():
-            M[x][y] += str(nombre) + "H"
-
-        for (x, y), nombre in self.warewolves.items():
-            M[x][y] += str(nombre) + "W"
-
-        print(np.matrix(M))
+    # def print_pretty(self):
+    #     M = [["__" for row in range(self.rows)] for col in range(self.columns)]
+    #     for (x, y), nombre in self.vampires.items():
+    #         M[x][y] += str(nombre) + "V"
+    #
+    #     for (x, y), nombre in self.humans.items():
+    #         M[x][y] += str(nombre) + "H"
+    #
+    #     for (x, y), nombre in self.warewolves.items():
+    #         M[x][y] += str(nombre) + "W"
+    #
+    #     print(np.matrix(M))
 
 
 class Player:

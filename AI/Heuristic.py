@@ -67,7 +67,7 @@ class Heuristic:
             p = player_num / enemy_num - 0.5
         if player_num < enemy_num:
             p = 0.5 * player_num / enemy_num
-        return self.enemy_lambda(self.player_left_after_random_battle(p) * player_num)
+        return self.enemy_lambda(player_num*p*p - enemy_num*(1-p)*(1-p))
 
     def player_left_against_human(self, player_num, human_num):
         if player_num > human_num:
@@ -79,10 +79,7 @@ class Heuristic:
             p = player_num / human_num - 0.5
         if player_num < human_num:
             p = 0.5 * player_num / human_num
-        return self.enemy_lambda(self.player_left_after_random_battle(p) * player_num + p * human_num)
-
-    def player_left_after_random_battle(self, p):
-        return p * (2 * p - 1) - (1 - p)
+        return self.enemy_lambda((player_num+human_num)*p*p)
 
 class HeuristicAllEnvironnement(Heuristic):
 

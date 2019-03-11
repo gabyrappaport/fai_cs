@@ -134,7 +134,7 @@ class Board:
         return actions
 
     def still_in_grid(self, x, y):
-        return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
+        return 0 <= x <= self.columns - 1 and 0 <= y <= self.rows - 1
 
     def print_pretty(self):
         M = [["__" for row in range(self.rows)] for col in range(self.columns)]

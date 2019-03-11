@@ -1,4 +1,5 @@
 import socket
+import sys
 from struct import pack
 
 from AI.AlphaBeta import Alphabeta
@@ -7,15 +8,15 @@ from AI.Settings import VAMPIRES, WAREWOLVES
 
 
 class Client:
-    def __init__(self, ai_name):
+    def __init__(self, ai_name, hote="localhost", port=5555):
         self.ai_name = ai_name
         self.hote = "localhost"
         self.port = 5555
         self.connexion_avec_serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connexion_avec_serveur.connect((self.hote, self.port))
-        self.open_connexion()
         self.board = None
         self.alphabeta = None
+        self.open_connexion()
 
     def open_connexion(self):
         nme = b'NME' + pack("B", len(self.ai_name)) + self.ai_name.encode()
@@ -45,7 +46,7 @@ class Client:
             raise (Exception("There is a problem in your socket...2"))
         self.listen()
 
-    def move(self,list_moves):
+    def move(self, list_moves):
         nbr_moves = len(list_moves)
         encoded_list_moves = b""
         for m in list_moves:
@@ -119,4 +120,8 @@ class Client:
         return aff
 
 
-client = Client("We are on fire")
+if __name__ == "__main__":
+    ip = sys.argv[2] if len(sys.argv) > 2 else None
+    port = sys.argv[3] if len(sys.argv) > 3 else None
+    client = Client("We are on fire!", ip, port)
+    # ServeurConnection.py –myparams 123.123.3.5 6666

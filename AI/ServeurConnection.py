@@ -2,9 +2,9 @@ import socket
 import sys
 from struct import pack
 
-from AI.AlphaBeta import Alphabeta
-from AI.Board import Board
-from AI.Settings import VAMPIRES, WAREWOLVES
+from AlphaBeta import Alphabeta
+from Board import Board
+from Settings import VAMPIRES, WAREWOLVES
 
 
 class Client:

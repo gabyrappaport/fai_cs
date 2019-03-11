@@ -1,5 +1,6 @@
 import itertools
 import math
+import numpy as np
 import random
 
 from Settings import VAMPIRES
@@ -32,7 +33,7 @@ class Board:
             if self.vampires[(x, y)] == 0: del self.vampires[(x, y)]
             if self.warewolves[(x, y)] == 0: del self.warewolves[(x, y)]
 
-    def play(self, action):
+    def play_dep(self, action):
         for move in action:
             (start_x, start_y), (end_x, end_y), num = move
             self.player.dict[(start_x, start_y)] -= num
@@ -44,14 +45,12 @@ class Board:
             self.player.dict[(end_x, end_y)] = val
         self.update_dict()
 
-    def play_dep(self, moves):
+    def play(self, moves):
         for move in moves:
             (start_x, start_y), (end_x, end_y), num = move
             self.player.dict[(start_x, start_y)] -= num
             if self.player.dict[(start_x, start_y)] == 0:
                 del self.player.dict[(start_x, start_y)]
-                self.update_dict()
-                return
             if (not (end_x, end_y) in self.enemy.dict) and (not (end_x, end_y) in self.humans):
                 add = num
                 if (end_x, end_y) in self.player.dict:
@@ -72,22 +71,22 @@ class Board:
                     self.player.dict[(end_x, end_y)] = num + enemies_num
                     self.update_dict()
                     return
-            p = 0.5
-            if num > enemies_num:
-                p = num / enemies_num - 0.5
-            if enemies_num > num:
-                p = 0.5 * num / enemies_num
-            rand = random.random()
-            if rand < p:
-                # Player wins
-                del self.enemy.dict[(end_x, end_y)]
-                self.player.dict[(end_x, end_y)] = math.floor(p * num)
-                self.update_dict()
-                return
-            else:
-                self.enemy.dict[(end_x, end_y)] = math.floor((1 - p) * enemies_num)
-                self.update_dict()
-                return
+                p = 0.5
+                if num > enemies_num:
+                    p = num / enemies_num - 0.5
+                if enemies_num > num:
+                    p = 0.5 * num / enemies_num
+                rand = random.random()
+                if rand < p:
+                    # Player wins
+                    del self.enemy.dict[(end_x, end_y)]
+                    self.player.dict[(end_x, end_y)] = math.floor(p * num)
+                    self.update_dict()
+                    return
+                else:
+                    self.enemy.dict[(end_x, end_y)] = math.floor((1 - p) * enemies_num)
+                    self.update_dict()
+                    return
             # Human battle
             if (end_x, end_y) in self.humans:
                 humans_num = self.humans[(end_x, end_y)]
@@ -202,18 +201,18 @@ class Board:
     def still_in_grid(self, x, y):
         return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
 
-    # def print_pretty(self):
-    #     M = [["__" for row in range(self.rows)] for col in range(self.columns)]
-    #     for (x, y), nombre in self.vampires.items():
-    #         M[x][y] += str(nombre) + "V"
-    #
-    #     for (x, y), nombre in self.humans.items():
-    #         M[x][y] += str(nombre) + "H"
-    #
-    #     for (x, y), nombre in self.warewolves.items():
-    #         M[x][y] += str(nombre) + "W"
-    #
-    #     print(np.matrix(M))
+    def print_pretty(self):
+        M = [["__" for row in range(self.rows)] for col in range(self.columns)]
+        for (x, y), nombre in self.vampires.items():
+            M[x][y] += str(nombre) + "V"
+
+        for (x, y), nombre in self.humans.items():
+            M[x][y] += str(nombre) + "H"
+
+        for (x, y), nombre in self.warewolves.items():
+            M[x][y] += str(nombre) + "W"
+
+        print(np.matrix(M))
 
 
 class Player:

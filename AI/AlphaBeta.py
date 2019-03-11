@@ -7,7 +7,7 @@ from Settings import VAMPIRES, WAREWOLVES
 
 
 class Alphabeta:
-    def __init__(self, board, player=VAMPIRES, profondeur_max=4, heuristic_player=Heuristic): # todo: prof pas > a la dim
+    def __init__(self, board, player=VAMPIRES, profondeur_max=1, heuristic_player=Heuristic): # todo: prof pas > a la dim
         self.board = board
         self.player = player
         self.enemy = VAMPIRES if (player != VAMPIRES) else WAREWOLVES

@@ -2,7 +2,7 @@ import sys
 import time
 from copy import deepcopy
 
-from Heuristic import Heuristic, HeuristicAllEnvironnement
+from Heuristic import Heuristic
 from Settings import VAMPIRES, WAREWOLVES
 
 

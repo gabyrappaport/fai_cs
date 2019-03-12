@@ -1,6 +1,6 @@
 import itertools
 import math
-#import numpy as np
+import numpy as np
 import random
 
 from Settings import VAMPIRES
@@ -90,21 +90,21 @@ class Board:
             # Human battle
             if (end_x, end_y) in self.humans:
                 humans_num = self.humans[(end_x, end_y)]
-                if num > humans_num:
+                if num >= humans_num:
                     del self.humans[(end_x, end_y)]
                     self.player.dict[(end_x, end_y)] = num + humans_num
                     self.update_dict()
                     return
-                p = 0.5
-                if num > humans_num:
-                    p = num / humans_num - 0.5
-                if humans_num > num:
-                    p = 0.5 * num / humans_num
+                p = 0.5 * num / humans_num
                 rand = random.random()
                 if rand < p:
                     # Player wins
                     del self.humans[(end_x, end_y)]
                     self.player.dict[(end_x, end_y)] = math.floor(p * num) + math.floor(p * humans_num)
+                    self.update_dict()
+                    return
+                else:
+                    self.humans[(end_x, end_y)] = math.floor((1-p) * num) + math.floor((1-p) * humans_num)
                     self.update_dict()
                     return
 
@@ -199,20 +199,20 @@ class Board:
         return actions
 
     def still_in_grid(self, x, y):
-        return 0 <= x <= self.rows - 1 and 0 <= y <= self.columns - 1
+        return 0 <= x <= self.columns - 1 and 0 <= y <= self.rows - 1
 
-    # def print_pretty(self):
-    #     M = [["__" for row in range(self.rows)] for col in range(self.columns)]
-    #     for (x, y), nombre in self.vampires.items():
-    #         M[x][y] += str(nombre) + "V"
-    #
-    #     for (x, y), nombre in self.humans.items():
-    #         M[x][y] += str(nombre) + "H"
-    #
-    #     for (x, y), nombre in self.warewolves.items():
-    #         M[x][y] += str(nombre) + "W"
-    #
-    #     print(np.matrix(M))
+    def print_pretty(self):
+        M = [["__" for row in range(self.columns)] for col in range(self.rows)]
+        for (x, y), nombre in self.vampires.items():
+            M[y][x] += str(nombre) + "V"
+
+        for (x, y), nombre in self.humans.items():
+            M[y][x] += str(nombre) + "H"
+
+        for (x, y), nombre in self.warewolves.items():
+            M[y][x] += str(nombre) + "W"
+
+        print(np.matrix(M))
 
 
 class Player:

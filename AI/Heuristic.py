@@ -1,4 +1,5 @@
 import math
+import sys
 
 
 def inverse(x):
@@ -21,30 +22,32 @@ class Heuristic:
         self.enemy_lambda = enemy_lambda
 
     def calculate(self, board):
-        #print("compute heuristic")
-        #print(board.player.type)
-        #board.print_pretty()
         player_location = board.player.dict
         enemy_location = board.enemy.dict
         human_location = board.humans
+        #print("Compute heuristique")
+        #board.print_pretty()
+        if board.player.get_count() == 0:
+            return -sys.maxsize
+        if board.enemy.get_count() == 0:
+            return sys.maxsize
         result = self.coef_presence * (board.player.get_count() - board.enemy.get_count())
+        #print("initial result", result)
         for player_pos, player_num in player_location.items():
             scores = []
             for enemy_pos, enemy_num in enemy_location.items():
                 d = self.euclidian(player_pos, enemy_pos)
-                if d <= self.distance_threshold:
-                    #print("distance enemy", d)
-                    scores += [self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num, board)]
-            #print("scores enemy", scores)
+                #if d <= self.distance_threshold:
+                scores += [self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num, board)]
+                #print('scores enemy', scores)
             for human_pos, human_num in human_location.items():
                 d = self.euclidian(player_pos, human_pos)
-                if d <= self.distance_threshold:
-                    #print("distance human", d)
-                    scores += [self.heuristic_human(player_pos, human_pos, player_num, human_num)]
-            #print("scores total", scores)
+                #if d <= self.distance_threshold:
+                scores += [self.heuristic_human(player_pos, human_pos, player_num, human_num)]
+                #print("scores", scores)
             if len(scores) > 0:
                 result += self.max_abs(scores)
-        ##print("result", result)
+        #print("heuristic", result)
         return result
 
     def max_abs(self, scores):
@@ -55,18 +58,15 @@ class Heuristic:
         return max
 
     def heuristic_enemy(self, player_pos, enemy_pos, player_num, enemy_num, board):
-        #if enemy_pos in board.humans:
-        #    enemy_num = self.player_left_against_human(enemy_num, board.humans[enemy_pos])
-        #if player_pos in board.humans:
-        #    player_num = self.player_left_against_human(player_num, board.humans[player_pos])
         player_left = self.player_left_against_enemy(player_num, enemy_num)
-        ##print("player left", player_left)
         return self.coef_enemy * self.distance(player_pos, enemy_pos) * player_left
 
     def heuristic_human(self, start, end, player_num, human_num):
-        #print("player left against human", self.player_left_against_human(player_num, human_num))
-        #print("distance human", self.distance(start, end), "start", start, "end", end)
-        #print('coef', self.coef_humans)
+        #print("Heuristic humans")
+        #print("start", start)
+        #print("end", end)
+        #print('distance', self.euclidian(start, end), "used distance", self.distance(start, end))
+        #print("player left", self.player_left_against_human(player_num, human_num))
         return self.coef_humans * self.distance(start, end) * self.player_left_against_human(player_num, human_num)
 
     def euclidian(self, start, end):
@@ -101,34 +101,3 @@ class Heuristic:
         if player_num < human_num:
             p = 0.5 * player_num / human_num
         return self.enemy_lambda((player_num+human_num)*p*p)
-
-class HeuristicAllEnvironnement(Heuristic):
-
-    def __init__(self, board):
-        super().__init__(board)
-
-    def calculate(self, board):
-        player_location = board.player.dict
-        enemy_location = board.enemy.dict
-        human_location = board.humans
-        # if board in self.score_mem: return self.score_mem[board]
-        result = board.player.get_count()*100
-        # Au lieu de tout sommer on peut prendre le score max par point
-        for player_pos, player_num in player_location.items():
-            scores = 0
-            for enemy_pos, enemy_num in enemy_location.items():
-                d = self.euclidian(player_pos, enemy_pos)
-                if d <= self.distance_threshold:
-                    scores += self.heuristic_enemy(player_pos, enemy_pos, player_num, enemy_num)
-            for human_pos, human_num in human_location.items():
-                d = self.euclidian(player_pos, human_pos)
-                if d <= self.distance_threshold:
-                    scores += self.heuristic_human(player_pos, human_pos, player_num, human_num)
-        # #print("Got result", result, len(player_location.items()), len(enemy_location.items()))
-        return result
-
-
-class AttackingHumansHeuristic(Heuristic):
-
-    def __init__(self, board):
-        super(Heuristic, self).__init__(board)
